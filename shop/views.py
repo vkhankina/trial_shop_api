@@ -1,14 +1,14 @@
 import json
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.forms.models import model_to_dict
 # from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Product, Cart, CartItem
+from .schema import CartItemSchema, ProductSchema, CartSchema
 
 
 def product(request, product_id):
     entity = get_object_or_404(Product, id=product_id)
-    return JsonResponse(model_to_dict(entity))
+    return JsonResponse(ProductSchema().dump(entity))
 
 
 def products(request):
@@ -26,30 +26,30 @@ def products(request):
             return JsonResponse({'error': 'Unprocessable entity'}, 422)
 
     entities = Product.list(search=search, order_by=order_by)
-    return JsonResponse([model_to_dict(e) for e in entities], safe=False)
+    return JsonResponse(ProductSchema().dump(entities, many=True), safe=False)
 
 
 # @ensure_csrf_cookie
 def cart(request, cart_id):
     entity = get_object_or_404(Cart, id=cart_id)
-    return JsonResponse(model_to_dict(entity))
+    return JsonResponse(CartSchema().dump(entity))
 
 
 def checkout_cart(request, cart_id):
     entity = get_object_or_404(Cart, id=cart_id)
     entity.checkout()
-    return JsonResponse(model_to_dict(entity))
+    return JsonResponse(CartSchema().dump(entity))
 
 
 # @ensure_csrf_cookie
 def create_cart(request):
     entity = Cart.create()
-    return JsonResponse(model_to_dict(entity))
+    return JsonResponse(CartSchema().dump(entity))
 
 
 def cart_items(request, cart_id):
     entities = CartItem.list(cart_id)
-    return JsonResponse([model_to_dict(e) for e in entities], safe=False)
+    return JsonResponse(CartItemSchema().dump(entities, many=True), safe=False)
 
 
 def add_to_cart(request, cart_id):
@@ -62,7 +62,7 @@ def add_to_cart(request, cart_id):
         cart_entity = get_object_or_404(Cart, id=cart_id)
 
         cart_item = CartItem.add_to_cart(cart_entity, product_entity, qty)
-        return JsonResponse(model_to_dict(cart_item))
+        return JsonResponse(CartItemSchema().dump(cart_item))
     return JsonResponse({'error': 'Bad request'}, 400)
 
 
@@ -73,5 +73,5 @@ def update_cart_item(request, cart_item_id):
 
         entity = get_object_or_404(CartItem, id=cart_item_id)
         entity.update(qty)
-        return JsonResponse(model_to_dict(entity))
+        return JsonResponse(CartItemSchema().dump(entity))
     return JsonResponse({'error': 'Bad request'}, 400)

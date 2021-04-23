@@ -75,6 +75,7 @@ class CartItem(models.Model):
 
     @classmethod
     def add_to_cart(cls, cart, product, qty):
+        # FIX: transactions
         # FIX: should be validation error
         if cart.state != Cart.CartState.NEW:
             raise Exception('Cart must be new!')
@@ -87,6 +88,7 @@ class CartItem(models.Model):
         return item
 
     def update(self, qty):
+        # FIX: transactions
         # FIX: should be validation error
         if self.cart.state != Cart.CartState.NEW:
             raise Exception('Cart must be new!')
