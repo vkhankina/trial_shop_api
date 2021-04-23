@@ -32,6 +32,12 @@ def cart(request, cart_id):
     return JsonResponse(model_to_dict(entity))
 
 
+def checkout_cart(request, cart_id):
+    entity = get_object_or_404(Cart, id=cart_id)
+    entity.checkout()
+    return JsonResponse(model_to_dict(entity))
+
+
 def create_cart(request):
     entity = Cart.create()
     return JsonResponse(model_to_dict(entity))
