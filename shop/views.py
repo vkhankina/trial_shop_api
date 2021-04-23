@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
+# from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Product, Cart, CartItem
 
 
@@ -27,6 +28,7 @@ def products(request):
     return JsonResponse([model_to_dict(e) for e in entities], safe=False)
 
 
+# @ensure_csrf_cookie
 def cart(request, cart_id):
     entity = get_object_or_404(Cart, id=cart_id)
     return JsonResponse(model_to_dict(entity))
@@ -38,6 +40,7 @@ def checkout_cart(request, cart_id):
     return JsonResponse(model_to_dict(entity))
 
 
+# @ensure_csrf_cookie
 def create_cart(request):
     entity = Cart.create()
     return JsonResponse(model_to_dict(entity))
