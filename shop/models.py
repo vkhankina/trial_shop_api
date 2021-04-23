@@ -109,7 +109,7 @@ class CartItem(models.Model):
             cart_id=cart_id
         ).filter(
             product_id=product_id
-        ).get()
+        ).first()
 
     @classmethod
     def _create(cls, cart, product, qty):
@@ -131,5 +131,5 @@ class CartItem(models.Model):
     def _update_cart_total(self):
         self.cart.total = self.__class__.objects.filter(
             cart_id=self.cart_id
-        ).aggregate(models.Sum('total'))
+        ).aggregate(models.Sum('total'))['total__sum']
         self.cart.save()

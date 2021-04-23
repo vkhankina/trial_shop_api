@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -52,19 +53,25 @@ def cart_items(request, cart_id):
 
 
 def add_to_cart(request, cart_id):
-    product_id = request.POST['product_id']
-    qty = request.POST.get('qty', 1)
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        product_id = json_data['product_id']
+        qty = json_data.get('qty', 1)
 
-    product_entity = get_object_or_404(Product, id=product_id)
-    cart_entity = get_object_or_404(Cart, id=cart_id)
+        product_entity = get_object_or_404(Product, id=product_id)
+        cart_entity = get_object_or_404(Cart, id=cart_id)
 
-    cart_item = CartItem.add_to_cart(cart_entity, product_entity, qty)
-    return JsonResponse(model_to_dict(cart_item))
+        cart_item = CartItem.add_to_cart(cart_entity, product_entity, qty)
+        return JsonResponse(model_to_dict(cart_item))
+    return JsonResponse({'error': 'Bad request'}, 400)
 
 
 def update_cart_item(request, cart_item_id):
-    qty = request.POST['qty']
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        qty = json_data['qty']
 
-    entity = get_object_or_404(CartItem, id=cart_item_id)
-    entity.update(qty)
-    return JsonResponse(model_to_dict(entity))
+        entity = get_object_or_404(CartItem, id=cart_item_id)
+        entity.update(qty)
+        return JsonResponse(model_to_dict(entity))
+    return JsonResponse({'error': 'Bad request'}, 400)
